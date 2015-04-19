@@ -68,6 +68,10 @@ public class irinstruction {
 	public irinstruction(int type, Object arg1, Object arg2){
 		instructiontype = type;
 		switch(type){
+		case IRCONDITIONALJUMP:
+			result = arg1;
+			argument1 = arg2;
+			break;
 		case IRUNARYASSIGNMENT:
 			result = arg1;
 			argument1 = arg2;
@@ -160,13 +164,13 @@ public class irinstruction {
 		return "param " + argument1;
 	}
 	public String irlabel(){
-		return "LABEL "+argument1+":";
+		return argument1+":";
 	}
 	public String irprint(){
-		return "";
+		return "print";
 	}
 	public String irjr(){
-		return "";
+		return "jr";
 	}
 	
 	public String toString(){

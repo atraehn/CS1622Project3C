@@ -5,7 +5,11 @@ class Test {
 }
 class Test2 {
     public int Start(int y) {
-	y = y + 1;
-        return y;
+    	int a;
+    	if(5<3)
+    		a = 3;
+    	else
+    		a = 0;
+        return a;
     }
 }

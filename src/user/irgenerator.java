@@ -165,9 +165,8 @@ public class irgenerator implements visitor.IRVisitor{
 		labelnumber++;
 		Identifier ifi = new Identifier("LABEL"+iflabel);
 		Identifier elsei = new Identifier("LABEL"+elselabel);
-		
 		Object arg1 = n.e.accept(this);
-		IR.add(new irinstruction(irinstruction.IRCONDITIONALJUMP, arg1, elsei));
+		IR.add(new irinstruction(irinstruction.IRCONDITIONALJUMP, elsei, arg1));
 		n.s1.accept(this);
 		IR.add(new irinstruction(irinstruction.IRUNCONDITIONALJUMP, ifi));
 		IR.add(new irinstruction(irinstruction.IRLABEL, elsei));
@@ -248,19 +247,25 @@ public class irgenerator implements visitor.IRVisitor{
 	// Exp e1,e2;
 	public Object visit(LessThan n) {
 		int type = irinstruction.IRASSIGNMENT;
+		Identifier temp = new Identifier("t"+temporarynumber);
+		temporarynumber++;
 		Object e1result = n.e1.accept(this);
 		Object e2result = n.e2.accept(this);
 		Object eval;
 		if(e1result instanceof IntegerLiteral && e2result instanceof IntegerLiteral){
 			IntegerLiteral e1r = (IntegerLiteral) e1result;
 			IntegerLiteral e2r = (IntegerLiteral) e2result;
-			if(e1r.i < e2r.i) eval = new True();
-			else eval = new False();
+			if(e1r.i < e2r.i){
+				eval = new True();
+			}
+			else{
+				eval = new False();
+			}
 		}else{
 			eval = new False();
 		}
-		IR.add(new irinstruction(type, n, e1result, e2result));
-		return eval;
+		IR.add(new irinstruction(type, n, e1result, e2result, temp));
+		return temp;
 	}
 
 	// Exp e1,e2;

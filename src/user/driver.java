@@ -41,9 +41,10 @@ public class driver {
 		
 		irgenerator ir = new irgenerator();
 		ir.visit(output);
+
+		System.out.println("\n\n~~~~~~~IR");
 		ir.print();
 		
-		System.out.println("\n\n");
 		
 		mipsgenerator mips = new mipsgenerator(ir.IR);
 		
@@ -52,7 +53,8 @@ public class driver {
 		writer.print(mips.print());
 		writer.print(new Scanner(footer).useDelimiter("\\Z").next());
 		writer.close();
-		
+
+		System.out.println("\n\n~~~~~~~MIPS");
 		System.out.println(mips.print());
 	}
 }

@@ -31,10 +31,18 @@ jal _system_out_println
 j _system_exit
 Test2:
 Start:
-li $t0, 1
-add $t1, $a1, $t0
-move $a1, $t1
-move $v0, $a1
+li $t0, 5
+li $t1, 3
+slt $t2, $t0, $t1
+conditionaljump
+li $t4, 3
+move $t5, $t4
+unconditionaljump
+LABEL2:
+li $t7, 0
+move $t5, $t7
+LABEL3:
+move $v0, $t5
 jr $ra
 _system_exit:
 	li $v0, 10 #exit
