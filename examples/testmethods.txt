@@ -1,0 +1,39 @@
+class Test {
+    public static void main(String[] a) {
+        var = id.call(10);
+    }
+}
+
+class id{
+	boolean bool;
+	int[] intarr;
+	int hi;
+	id2 hello;
+}
+
+class id2 extends id{
+
+	public boolean methodtest ( int x, int y, int[]z){
+		boolean sup;
+		int irock;
+		
+		{
+		sup = false;
+		ints = 10;
+		}
+
+		return true;
+	}
+
+	public boolean method(){
+		return 10;
+	}
+
+	public int[] method2(){
+
+		int[] THISISOURTEST;
+		return new int[10];
+	}
+	
+}
+

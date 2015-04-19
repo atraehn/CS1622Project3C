@@ -1,0 +1,384 @@
+// CUP specification for a simple expression evaluator (w/ actions)
+
+import java_cup.runtime.*;
+import syntaxtree.*;
+
+/* Preliminaries to set up and use the scanner.  */
+/*
+init with {: scanner.init();              :};
+scan with {: return scanner.next_token(); :};
+*/
+
+
+/* Terminals (tokens returned by the scanner). */
+terminal				TIMES;
+terminal	String			IDENTIFIER;
+terminal	Integer			NUMBER;
+terminal				LBRACE;
+terminal				RBRACE;
+terminal				LBRACK;
+terminal				RBRACK;
+terminal				LPAR;
+terminal				RPAR;
+terminal				LT;
+terminal				PLUS;
+terminal				MINUS;
+terminal				EQUALS;
+terminal				DOT;
+terminal				COMMA;
+terminal				SEMICOL;
+terminal				EXCL;
+terminal				AND;
+terminal				IF;
+terminal				INT;
+terminal				NEW;
+terminal				THIS;
+terminal				ELSE;
+terminal				MAIN;
+terminal				VOID;
+terminal				WHILE;
+terminal				CLASS;
+terminal				LEN;
+terminal				STATIC;
+terminal				KSTRING;
+terminal				PUBLIC;
+terminal				RETURN;
+terminal				BOOL;
+terminal				EXTENDS;
+terminal				PRINT;
+terminal				TRUE;
+terminal				FALSE;	
+
+/* Non-terminals */
+non terminal	Program			program;
+non terminal	MainClass		main;
+non terminal	ClassDecl		class_decl;
+non terminal	VarDecl			var_decl;
+non terminal	MethodDecl		method_decl;
+non terminal	Formal			formal;
+
+non terminal	Statement		statement;
+non terminal	Type			type;
+non terminal	Exp			expression;
+
+non terminal	ClassDeclList		class_decl_list;
+non terminal	ExpList			expression_list;
+non terminal	FormalList		formal_list;
+non terminal	VarDeclList		var_decl_list;
+non terminal	MethodDeclList		method_decl_list;
+non terminal	StatementList		statement_list;
+
+/* Precedences */
+precedence nonassoc AND;
+precedence left LT;
+precedence left PLUS, MINUS;
+precedence left TIMES;
+precedence right EXCL, NEW;
+precedence left DOT;
+
+/* The grammar */
+start with program;
+
+program		::=	main:m class_decl_list:cdl
+		{:
+			RESULT = new Program(m, cdl);
+		:}
+		|
+			main:m
+		{:
+			RESULT = new Program(m, new ClassDeclList());
+		:}
+		;
+
+main		::=	CLASS IDENTIFIER:id LBRACE PUBLIC STATIC VOID MAIN LPAR KSTRING LBRACK RBRACK IDENTIFIER:args RPAR LBRACE statement:statement RBRACE RBRACE
+		{:
+			RESULT = new MainClass(new Identifier(id,idleft,idright), new Identifier(args,argsleft,argsright), statement);
+		:}
+		;
+
+class_decl_list	::=	class_decl:c1
+		{:
+			ClassDeclList list = new ClassDeclList();
+			list.addElement(c1);
+			RESULT = list;
+		:}
+		|	class_decl_list:list class_decl:c1
+		{:
+			list.addElement(c1);
+			RESULT = list;
+		:}
+		;
+
+class_decl	::=	CLASS IDENTIFIER:id LBRACE var_decl_list:var_list method_decl_list:method_list RBRACE
+		{:
+			RESULT = new ClassDeclSimple(new Identifier(id,idleft,idright), var_list, method_list);
+		:}
+		|	CLASS IDENTIFIER:id LBRACE method_decl_list:method_list RBRACE
+		{:
+			RESULT = new ClassDeclSimple(new Identifier(id,idleft,idright), new VarDeclList(), method_list);
+		:}
+		|	CLASS IDENTIFIER:id LBRACE var_decl_list:var_list RBRACE
+		{:
+			RESULT = new ClassDeclSimple(new Identifier(id,idleft,idright), var_list, new MethodDeclList());
+		:}
+		|	CLASS IDENTIFIER:id LBRACE RBRACE
+		{:
+			RESULT = new ClassDeclSimple(new Identifier(id,idleft,idright), new VarDeclList(), new MethodDeclList());
+		:}
+		|	CLASS IDENTIFIER:id EXTENDS IDENTIFIER:id2 LBRACE var_decl_list:var_list method_decl_list:method_list RBRACE
+		{:
+			RESULT = new ClassDeclExtends(new Identifier(id,idleft,idright), new Identifier(id2,id2left,id2right), var_list, method_list);
+		:}
+		|	CLASS IDENTIFIER:id EXTENDS IDENTIFIER:id2 LBRACE method_decl_list:method_list RBRACE
+		{:
+			RESULT = new ClassDeclExtends(new Identifier(id,idleft,idright), new Identifier(id2,id2left,id2right), new VarDeclList(), method_list);
+		:}
+		|	CLASS IDENTIFIER:id EXTENDS IDENTIFIER:id2 LBRACE var_decl_list:var_list RBRACE
+		{:
+			RESULT = new ClassDeclExtends(new Identifier(id,idleft,idright), new Identifier(id,id2left,id2right), var_list, new MethodDeclList());
+		:}
+		|	CLASS IDENTIFIER:id EXTENDS IDENTIFIER:id2 LBRACE RBRACE
+		{:
+			RESULT = new ClassDeclExtends(new Identifier(id,idleft,idright), new Identifier(id2,id2left,id2right), new VarDeclList(), new MethodDeclList());
+		:}
+		|
+		error RBRACE
+		{:
+			System.out.println("Parse error at line d, column d");
+		:}
+		;
+
+var_decl_list	::=	var_decl:v
+		{:
+			VarDeclList list = new VarDeclList();
+			list.addElement(v);
+			RESULT = list;
+		:}
+		|	var_decl_list:list var_decl:v
+		{:
+			list.addElement(v);
+			RESULT = list;
+		:}
+		;
+
+var_decl	::=	type:t IDENTIFIER:id SEMICOL
+		{:
+			RESULT = new VarDecl(t, new Identifier(id,idleft,idright));
+		:}
+		;
+
+method_decl_list ::=	method_decl:m
+		{:
+			MethodDeclList list = new MethodDeclList();
+			list.addElement(m);
+			RESULT = list;
+		:}
+		|	method_decl_list:list method_decl:m
+		{:
+			list.addElement(m);
+			RESULT = list;
+		:}
+		;
+
+method_decl	::=	PUBLIC type:t IDENTIFIER:id LPAR formal_list:formals RPAR LBRACE var_decl_list:variables statement_list:statements RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), formals, variables, statements, e1);
+		:}
+		|	PUBLIC type:t IDENTIFIER:id LPAR formal_list:formals RPAR LBRACE statement_list:statements RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), formals, new VarDeclList(), statements, e1);
+		:}
+		|	PUBLIC type:t IDENTIFIER:id LPAR formal_list:formals RPAR LBRACE var_decl_list:variables RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), formals, variables, new StatementList(), e1);
+		:}
+		|	PUBLIC type:t IDENTIFIER:id LPAR formal_list:formals RPAR LBRACE RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), formals, new VarDeclList(), new StatementList(), e1);
+		:}
+		|	PUBLIC type:t IDENTIFIER:id LPAR RPAR LBRACE var_decl_list:variables statement_list:statements RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), new FormalList(), variables, statements, e1);
+		:}
+		|	PUBLIC type:t IDENTIFIER:id LPAR RPAR LBRACE statement_list:statements RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), new FormalList(), new VarDeclList(), statements, e1);
+		:}
+		|	PUBLIC type:t IDENTIFIER:id LPAR RPAR LBRACE var_decl_list:variables RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), new FormalList(), variables, new StatementList(), e1);
+		:}
+		|	PUBLIC type:t IDENTIFIER:id LPAR RPAR LBRACE RETURN expression:e1 SEMICOL RBRACE
+		{:
+			RESULT = new MethodDecl(t, new Identifier(id,idleft,idright), new FormalList(), new VarDeclList(), new StatementList(), e1);
+		:}
+		;
+
+formal		::=	type:t IDENTIFIER:id
+		{:
+			RESULT = new Formal(t, new Identifier(id,idleft,idright));
+		:}
+		;
+
+formal_list	::=	formal:f1
+		{:
+			FormalList list = new FormalList();
+			list.addElement(f1);
+			RESULT = list;
+		:}
+		|	formal_list:list COMMA formal:f1
+		{:
+			list.addElement(f1);
+			RESULT = list;
+		:}
+		|
+		error RPAR
+		{:
+			System.out.println("Parse error at line d, column d");
+		:}
+		;
+
+type		::=	INT LBRACK RBRACK
+		{:
+			RESULT = new IntArrayType();
+		:}
+		|	BOOL
+		{:
+			RESULT = new BooleanType();
+		:}
+		|	INT:i
+		{:
+			RESULT = new IntegerType(ileft, iright);
+		:}
+		|	IDENTIFIER:i
+		{:
+			RESULT = new IdentifierType(i);
+		:}
+		;
+
+statement_list	::=	statement:s
+		{:
+			StatementList list = new StatementList();
+			list.addElement(s);
+			RESULT = list;
+		:}
+		|	statement_list:list statement:s
+		{:
+			list.addElement(s);
+			RESULT = list;
+		:}
+		;
+		
+statement	::=	LBRACE statement_list:s RBRACE
+		{:
+			RESULT = new Block(s);
+		:}
+		|	IF LPAR expression:e RPAR statement:st ELSE statement:sf
+		{:
+			RESULT = new If(e, st, sf);
+		:}
+		|	WHILE LPAR expression:e RPAR statement:s
+		{:
+			RESULT = new While(e, s);
+		:}
+		|	PRINT LPAR expression:e RPAR SEMICOL
+		{:
+			RESULT = new Print(e);
+		:}
+		|	IDENTIFIER:i EQUALS expression:e SEMICOL
+		{:
+			RESULT = new Assign(new Identifier(i,ileft,iright), e);	
+		:}
+		|	IDENTIFIER:i LBRACK expression:index RBRACK EQUALS expression:e SEMICOL
+		{:
+			RESULT = new ArrayAssign(new Identifier(i,ileft,iright), index, e);
+		:}
+		|
+		error SEMICOL
+		{:
+			System.out.println("Parse error at line d, column d");
+		:}
+		;
+
+expression	::=	expression:e1 AND expression:e2
+		{:
+			RESULT = new And(e1, e2);
+		:}
+		|	expression:e1 PLUS expression:e2
+		{:
+			RESULT = new Plus(e1, e2);
+		:}
+		|	expression:e1 MINUS expression:e2
+		{:
+			RESULT = new Minus(e1, e2);
+		:}
+		|	expression:e1 TIMES expression:e2
+		{:
+			RESULT = new Times(e1, e2);
+		:}
+		|	expression:e1 LT expression:e2
+		{:
+			RESULT = new LessThan(e1, e2);
+		:}
+		|	expression:e1 LBRACK expression:e2 RBRACK
+		{:
+			RESULT = new ArrayLookup(e1, e2);
+		:}
+		|	expression:e1 DOT LEN
+		{:
+			RESULT = new ArrayLength(e1);
+		:}
+		|	expression:e1 DOT IDENTIFIER:id LPAR expression_list:list RPAR
+		{:
+			RESULT = new Call(e1, new Identifier(id,idleft,idright), list);
+		:}
+		|	NUMBER:n
+		{:
+			RESULT = new IntegerLiteral(n,nleft,nright);
+		:}
+		|	TRUE:t
+		{:
+			RESULT = new True(tleft,tright);
+		:}
+		|	FALSE:f
+		{:
+			RESULT = new False(fleft,fright);
+		:}
+		|	IDENTIFIER:i
+		{:
+			RESULT = new IdentifierExp(i,ileft,iright);
+		:}
+		|	THIS:t
+		{:
+			RESULT = new This(tleft,tright);
+		:}
+		|	NEW INT LBRACK expression:e1 RBRACK
+		{:
+			RESULT = new NewArray(e1);
+		:}
+		|	NEW IDENTIFIER:id LPAR RPAR
+		{:
+			RESULT = new NewObject(new Identifier(id,idleft,idright));
+		:}
+		|	EXCL expression:e1
+		{:
+			RESULT = new Not(e1);
+		:}
+		|	LPAR expression:e1 RPAR
+		{:
+			RESULT = e1;
+		:}
+		;
+
+expression_list ::=	expression:e1
+		{:
+			ExpList list = new ExpList();
+			list.addElement(e1);
+			RESULT = list;
+		:}
+		|	expression_list:list COMMA expression:e1
+		{:
+			list.addElement(e1);
+			RESULT = list;
+		:}
+		;

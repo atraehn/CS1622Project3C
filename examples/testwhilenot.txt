@@ -1,0 +1,8 @@
+class Factorial{
+    public static void main(String[] a){
+		
+		while(!false){
+		variable = 10;
+		array[2] = 10;}
+    }
+}
