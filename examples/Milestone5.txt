@@ -5,6 +5,15 @@ class Test {
 }
 class Test2 {
     public int Start(int y) {
-        return y;
+    	int a;
+    	a = 0;
+    	while(a<y){
+    		a = a + 1;
+    	}
+    	if(a<15)
+    		a = 15;
+    	else
+    		a = 5;
+        return a;
     }
 }
