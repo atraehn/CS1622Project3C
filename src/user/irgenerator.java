@@ -166,14 +166,14 @@ public class irgenerator implements visitor.IRVisitor{
 		Identifier ifi = new Identifier("LABEL"+iflabel);
 		Identifier elsei = new Identifier("LABEL"+elselabel);
 		Object arg1 = n.e.accept(this);
-		IR.add(new irinstruction(irinstruction.IRCONDITIONALJUMP, elsei, arg1));
+		IR.add(new irinstruction(irinstruction.IRCONDITIONALJUMP, arg1, elsei));
 		n.s1.accept(this);
 		IR.add(new irinstruction(irinstruction.IRUNCONDITIONALJUMP, ifi));
 		IR.add(new irinstruction(irinstruction.IRLABEL, elsei));
-		labelnumber--;
+		//labelnumber--;
 		n.s2.accept(this);
 		IR.add(new irinstruction(irinstruction.IRLABEL, ifi));
-		labelnumber--;
+		//labelnumber--;
 		return "IFCASE";
 	}
 
@@ -189,10 +189,10 @@ public class irgenerator implements visitor.IRVisitor{
 		IR.add(new irinstruction(irinstruction.IRLABEL, loopi));
 		Object arg1 = n.e.accept(this);
 		IR.add(new irinstruction(irinstruction.IRCONDITIONALJUMP, arg1, breaki));
-		labelnumber--;
+		//labelnumber--;
 		n.s.accept(this);
 		IR.add(new irinstruction(irinstruction.IRUNCONDITIONALJUMP, loopi));
-		labelnumber--;
+		//labelnumber--;
 		IR.add(new irinstruction(irinstruction.IRLABEL, breaki));
 		return "WHILECASE";
 	}
@@ -251,19 +251,19 @@ public class irgenerator implements visitor.IRVisitor{
 		temporarynumber++;
 		Object e1result = n.e1.accept(this);
 		Object e2result = n.e2.accept(this);
-		Object eval;
-		if(e1result instanceof IntegerLiteral && e2result instanceof IntegerLiteral){
-			IntegerLiteral e1r = (IntegerLiteral) e1result;
-			IntegerLiteral e2r = (IntegerLiteral) e2result;
-			if(e1r.i < e2r.i){
-				eval = new True();
-			}
-			else{
-				eval = new False();
-			}
-		}else{
-			eval = new False();
-		}
+//		Object eval;
+//		if(e1result instanceof IntegerLiteral && e2result instanceof IntegerLiteral){
+//			IntegerLiteral e1r = (IntegerLiteral) e1result;
+//			IntegerLiteral e2r = (IntegerLiteral) e2result;
+//			if(e1r.i < e2r.i){
+//				eval = new True();
+//			}
+//			else{
+//				eval = new False();
+//			}
+//		}else{
+//			eval = new False();
+//		}
 		IR.add(new irinstruction(type, n, e1result, e2result, temp));
 		return temp;
 	}

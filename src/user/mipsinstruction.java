@@ -257,9 +257,9 @@ public class mipsinstruction {
 				mips += "ERROR";
 				
 		}else if(ir.instructiontype == ir.IRUNCONDITIONALJUMP){
-			mips += "unconditionaljump";
+			mips += "j "+ir.result;
 		}else if(ir.instructiontype == ir.IRCONDITIONALJUMP){
-			mips += "conditionaljump";
+			mips += "beq "+sres+", $zero, "+ir.argument1;
 		}else if(ir.instructiontype == ir.IRCALL){
 			
 			for(int i = 0; i < 10; i++){

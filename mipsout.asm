@@ -2,7 +2,7 @@ Test:
 move $a0, $zero
 jal _new_object
 move $t2, $v0
-li $t3, 0
+li $t3, 10
 move $a0, $t1
 move $a1, $t3
 sw $t0, 0($sp)
@@ -31,18 +31,17 @@ jal _system_out_println
 j _system_exit
 Test2:
 Start:
-li $t0, 5
-li $t1, 3
-slt $t2, $t0, $t1
-conditionaljump
-li $t4, 3
-move $t5, $t4
-unconditionaljump
+li $t0, 0
+move $t1, $t0
 LABEL2:
-li $t7, 0
-move $t5, $t7
+slt $t3, $t1, $a1
+beq $t3, $zero, LABEL3
+li $t5, 1
+add $t6, $t1, $t5
+move $t1, $t6
+j LABEL2
 LABEL3:
-move $v0, $t5
+move $v0, $t1
 jr $ra
 _system_exit:
 	li $v0, 10 #exit

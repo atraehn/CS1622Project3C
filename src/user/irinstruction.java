@@ -137,7 +137,7 @@ public class irinstruction {
 		return "goto " + result;
 	}
 	public String irconditionaljump(){
-		return "iffalse " + argument1 + " goto " + result;
+		return "iffalse " + result + " goto " + argument1;
 	}
 	public String ircall(){
 		return result + " := call " + ((Call)argument1).i + ", " + argument2;
