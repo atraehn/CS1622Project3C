@@ -41,6 +41,16 @@ add $t6, $t1, $t5
 move $t1, $t6
 j LABEL2
 LABEL3:
+li $t7, 15
+slt $t8, $t1, $t7
+beq $t8, $zero, LABEL2
+li $t9, 15
+move $t1, $t9
+j LABEL3
+LABEL2:
+li $t10, 5
+move $t1, $t10
+LABEL3:
 move $v0, $t1
 jr $ra
 _system_exit:
